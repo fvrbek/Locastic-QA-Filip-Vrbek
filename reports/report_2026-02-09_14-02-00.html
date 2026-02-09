@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">QA Test Application - Test Report</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+/******************************
+ * CUSTOM CSS
+ * assets\report.css
+ ******************************/
+
+/* Custom pytest-html report styling */
+
+/* Base typography */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a1a2e;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 20px 40px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+h1 {
+    font-size: 1.8em;
+    font-weight: 600;
+    color: #1a1a2e;
+    border-bottom: 3px solid #4361ee;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+}
+
+h2 {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #2d3436;
+    margin-top: 28px;
+}
+
+/* Environment table */
+#environment td {
+    padding: 6px 14px;
+    font-size: 1em;
+}
+
+#environment th {
+    background: #4361ee;
+    color: white;
+    padding: 8px 14px;
+    font-size: 1em;
+}
+
+/* Summary section */
+p.run-count {
+    font-size: 1.05em;
+    background: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    border-left: 4px solid #4361ee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Results table */
+#results-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    font-size: 1em;
+}
+
+#results-table thead th {
+    background: #2d3436;
+    color: white;
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 500;
+    border: none;
+    white-space: nowrap;
+}
+
+#results-table thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+#results-table thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
+/* Table rows */
+#results-table tbody tr {
+    transition: background 0.15s;
+}
+
+#results-table tbody tr:hover {
+    background: #f0f3ff !important;
+}
+
+/* alternating rows removed — pass/fail tints handle row distinction */
+
+#results-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+/* Status badges - pill style */
+#results-table td.col-result {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.5px;
+    text-align: center;
+    width: 80px;
+}
+
+#results-table .passed td.col-result {
+    color: #0a6640;
+    background: #d4edda;
+    border-left: 3px solid #28a745;
+}
+
+#results-table .failed td.col-result {
+    color: #922b21;
+    background: #f8d7da;
+    border-left: 3px solid #dc3545;
+}
+
+#results-table .error td.col-result {
+    color: #856404;
+    background: #fff3cd;
+    border-left: 3px solid #ffc107;
+}
+
+#results-table .skipped td.col-result {
+    color: #1a5276;
+    background: #d6eaf8;
+    border-left: 3px solid #3498db;
+}
+
+/* Row backgrounds by status */
+#results-table .passed td {
+    background: #f6fef8;
+}
+
+#results-table .passed:hover td {
+    background: #e8f8ed !important;
+}
+
+#results-table .failed td {
+    background: #fef6f6;
+}
+
+#results-table .failed:hover td {
+    background: #fce8e8 !important;
+}
+
+/* Test name column */
+#results-table td.col-name {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 0.95em;
+    word-break: break-all;
+}
+
+/* Expanded details section */
+#results-table .extra {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-left: 3px solid #4361ee;
+    margin: 4px 0;
+}
+
+#results-table .extra .log {
+    background: #1a1a2e;
+    color: #a8e6cf;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 0.92em;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Test details docstring box */
+.test-doc {
+    background: #edf2ff;
+    border: 1px solid #c5cae9;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 8px 0;
+}
+
+.test-doc pre {
+    margin: 8px 0 0 0;
+    white-space: pre-wrap;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 0.95em;
+    color: #2d3436;
+    line-height: 1.6;
+}
+
+.test-doc strong {
+    color: #4361ee;
+}
+
+/* Checkbox filters */
+input[type="checkbox"] {
+    margin-right: 4px;
+}
+
+.filter {
+    margin: 14px 0;
+}
+
+/* Sortable header indicator */
+.sortable {
+    cursor: pointer;
+}
+
+.sortable:hover {
+    background: #3d5a80 !important;
+}
+
+/* Links */
+a {
+    color: #4361ee;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Collapsible sections */
+.collapsible td {
+    padding: 0 !important;
+}
+
+/* Duration column */
+#results-table td.col-duration {
+    white-space: nowrap;
+    color: #636e72;
+    font-size: 0.95em;
+}
+
+/* Links column */
+#results-table td.col-links {
+    white-space: nowrap;
+}
+
+/* Expand/collapse toggle button */
+#results-table .col-links a {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #e8ecf1;
+    color: #2d3436;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.82em;
+    font-weight: 500;
+    line-height: 1.4;
+    text-decoration: none;
+}
+
+#results-table .col-links a:hover {
+    background: #d5dbe3;
+    text-decoration: none;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">QA Test Application - Test Report</h1>
+    <p>Report generated on 09-Feb-2026 at 14:05:34 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.1.1</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="6">No results found. Check the filters.</th>
+        </tr>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="6">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left"><</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">></div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">104 tests took 00:03:34.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" />
+            <span class="failed">27 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" />
+            <span class="passed">77 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled/>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled/>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled/>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled/>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled/>
+            <span class="rerun">0 Reruns</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="category">Category</th>
+          <th>Description</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  </body>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.14.2&#34;, &#34;Platform&#34;: &#34;Windows-11-10.0.22631-SP0&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;8.3.4&#34;, &#34;pluggy&#34;: &#34;1.6.0&#34;}, &#34;Plugins&#34;: {&#34;base-url&#34;: &#34;2.1.0&#34;, &#34;html&#34;: &#34;4.1.1&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;, &#34;playwright&#34;: &#34;0.6.2&#34;}, &#34;Base URL&#34;: &#34;&#34;}, &#34;tests&#34;: {&#34;tests/test_api.py::TestRegisterAPI::test_register_valid_data&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A01: POST /api/register with valid data returns success.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestRegisterAPI::test_register_valid_data&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A01: POST /api/register with valid data returns success.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestRegisterAPI::test_register_valid_data&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api.py::TestRegisterAPI::test_register_duplicate_email&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A02: Registering same email twice returns error.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestRegisterAPI::test_register_duplicate_email&#34;, &#34;duration&#34;: &#34;368 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A02: Registering same email twice returns error.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestRegisterAPI::test_register_duplicate_email&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;368 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api.py::TestRegisterAPI::test_register_missing_fields&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A03: Registration with missing required fields.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestRegisterAPI::test_register_missing_fields&#34;, &#34;duration&#34;: &#34;208 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A03: Registration with missing required fields.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestRegisterAPI::test_register_missing_fields&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;208 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api.py::TestRegisterAPI::test_register_response_structure&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A04: Register response contains expected fields.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestRegisterAPI::test_register_response_structure&#34;, &#34;duration&#34;: &#34;183 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A04: Register response contains expected fields.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestRegisterAPI::test_register_response_structure&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;183 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api.py::TestLoginAPI::test_login_valid_credentials&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A05: POST /api/login with valid credentials returns success.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestLoginAPI::test_login_valid_credentials&#34;, &#34;duration&#34;: &#34;337 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A05: POST /api/login with valid credentials returns success.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestLoginAPI::test_login_valid_credentials&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;337 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api.py::TestLoginAPI::test_login_wrong_password&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A06: Login with wrong password returns error.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestLoginAPI::test_login_wrong_password&#34;, &#34;duration&#34;: &#34;331 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A06: Login with wrong password returns error.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestLoginAPI::test_login_wrong_password&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;331 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api.py::TestLoginAPI::test_login_nonexistent_email&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A07: Login with non-existent email returns error.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestLoginAPI::test_login_nonexistent_email&#34;, &#34;duration&#34;: &#34;182 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A07: Login with non-existent email returns error.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestLoginAPI::test_login_nonexistent_email&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;182 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api.py::TestLoginAPI::test_login_response_contains_user_data&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A08: Successful login response contains user object.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestLoginAPI::test_login_response_contains_user_data&#34;, &#34;duration&#34;: &#34;325 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A08: Successful login response contains user object.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestLoginAPI::test_login_response_contains_user_data&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;325 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_api.py::TestLoginAPI::test_no_csrf_token_required&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-A09: BUG - API accepts requests without CSRF token.\n\nNo CSRF protection means the API is vulnerable to\nCross-Site Request Forgery attacks.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_api.py::TestLoginAPI::test_no_csrf_token_required&#34;, &#34;duration&#34;: &#34;174 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;API&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-A09: BUG - API accepts requests without CSRF token.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_api.py::TestLoginAPI::test_no_csrf_token_required&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;174 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: API accepts requests without CSRF token - vulnerable to Cross-Site Request Forgery\n    assert True is not True\n     +  where True = &amp;lt;built-in method get of dict object at 0x000001A892672000&amp;gt;(&amp;#x27;success&amp;#x27;)\n     +    where &amp;lt;built-in method get of dict object at 0x000001A892672000&amp;gt; = {&amp;#x27;message&amp;#x27;: &amp;#x27;Registration successful&amp;#x27;, &amp;#x27;success&amp;#x27;: True, &amp;#x27;user&amp;#x27;: {&amp;#x27;address&amp;#x27;: &amp;#x27;123 St&amp;#x27;, &amp;#x27;city&amp;#x27;: &amp;#x27;Split&amp;#x27;, &amp;#x27;createdAt&amp;#x27;: &amp;#x27;2026-02-09T13:02:03.069Z&amp;#x27;, &amp;#x27;email&amp;#x27;: &amp;#x27;testuser_bkdg5l5p@example.com&amp;#x27;, ...}}.get\n&#34;}], &#34;tests/test_dashboard.py::TestDashboardAuthentication::test_unauthenticated_redirects_to_login[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D01: Accessing dashboard without login redirects to login page.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardAuthentication::test_unauthenticated_redirects_to_login[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D01: Accessing dashboard without login redirects to login page.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardAuthentication::test_unauthenticated_redirects_to_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardAuthentication::test_dashboard_accessible_after_login[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D02: Dashboard is accessible after successful login.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardAuthentication::test_dashboard_accessible_after_login[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D02: Dashboard is accessible after successful login.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardAuthentication::test_dashboard_accessible_after_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardAuthentication::test_welcome_shows_user_name[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D03: Welcome message displays the user&amp;#x27;s first name.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardAuthentication::test_welcome_shows_user_name[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D03: Welcome message displays the user&#39;s first name.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardAuthentication::test_welcome_shows_user_name[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardLogout::test_logout_redirects_to_login[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D04: Clicking logout redirects to login page.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardLogout::test_logout_redirects_to_login[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D04: Clicking logout redirects to login page.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardLogout::test_logout_redirects_to_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardLogout::test_logout_incomplete_session_cleanup[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D05: BUG - Logout doesn&amp;#x27;t clear all session data.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardLogout::test_logout_incomplete_session_cleanup[chromium]&#34;, &#34;duration&#34;: &#34;00:00:06&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D05: BUG - Logout doesn&#39;t clear all session data.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardLogout::test_logout_incomplete_session_cleanup[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:06&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: localStorage still has data after logout: [&amp;#x27;currentUser&amp;#x27;]. handleLogout() doesn&amp;#x27;t clear localStorage completely.\n    assert 1 == 0\n     +  where 1 = len([&amp;#x27;currentUser&amp;#x27;])\n&#34;}], &#34;tests/test_dashboard.py::TestDashboardLogout::test_no_logout_confirmation[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D06: BUG - No confirmation dialog before logout.\n\nThis is a known bug: clicking logout immediately logs out\nwithout asking &amp;#x27;Are you sure?&amp;#x27;\nNote: This test documents the behavior; Playwright can&amp;#x27;t\neasily test for missing dialogs, so we verify the immediate redirect.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardLogout::test_no_logout_confirmation[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D06: BUG - No confirmation dialog before logout.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardLogout::test_no_logout_confirmation[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardElements::test_stat_cards_visible[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D07: Dashboard shows stat cards.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardElements::test_stat_cards_visible[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D07: Dashboard shows stat cards.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardElements::test_stat_cards_visible[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardElements::test_action_buttons_present[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D08: Dashboard has action buttons.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardElements::test_action_buttons_present[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D08: Dashboard has action buttons.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardElements::test_action_buttons_present[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardElements::test_activity_list_present[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D09: Dashboard shows recent activity.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardElements::test_activity_list_present[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D09: Dashboard shows recent activity.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardElements::test_activity_list_present[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardElements::test_action_button_shows_toast[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D10: Clicking action button shows toast message.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardElements::test_action_button_shows_toast[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D10: Clicking action button shows toast message.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardElements::test_action_button_shows_toast[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardElements::test_page_title[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D11: Dashboard page title is correct.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardElements::test_page_title[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D11: Dashboard page title is correct.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardElements::test_page_title[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_dashboard.py::TestDashboardElements::test_last_login_displayed[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-D12: Last login timestamp is displayed.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dashboard.py::TestDashboardElements::test_last_login_displayed[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Dashboard&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-D12: Last login timestamp is displayed.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dashboard.py::TestDashboardElements::test_last_login_displayed[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_with_valid_email[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP01: Submitting valid email shows success message.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_with_valid_email[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP01: Submitting valid email shows success message.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_with_valid_email[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_with_nonexistent_email_still_succeeds[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP02: BUG - Non-existent email still shows success (fake reset).&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_with_nonexistent_email_still_succeeds[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP02: BUG - Non-existent email still shows success (fake reset).&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_with_nonexistent_email_still_succeeds[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Fake success shown for non-existent email - no actual verification of email existence\n    assert not True\n     +  where True = has_success_message()\n     +    where has_success_message = &amp;lt;pages.forgot_password_page.ForgotPasswordPage object at 0x000001A89388F110&amp;gt;.has_success_message\n&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordFlow::test_security_answer_not_validated[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP03: BUG - Security answer is never checked.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordFlow::test_security_answer_not_validated[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP03: BUG - Security answer is never checked.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordFlow::test_security_answer_not_validated[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Wrong security answer accepted - answer is never validated\n    assert not True\n     +  where True = has_success_message()\n     +    where has_success_message = &amp;lt;pages.forgot_password_page.ForgotPasswordPage object at 0x000001A893A29590&amp;gt;.has_success_message\n&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_without_security_answer[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP04: Reset works even with empty security answer.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_without_security_answer[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP04: Reset works even with empty security answer.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordFlow::test_reset_without_security_answer[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordValidation::test_empty_email_rejected[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP05: Empty email should not submit.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordValidation::test_empty_email_rejected[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP05: Empty email should not submit.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordValidation::test_empty_email_rejected[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordValidation::test_invalid_email_rejected[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP06: Invalid email format should show error.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordValidation::test_invalid_email_rejected[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP06: Invalid email format should show error.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordValidation::test_invalid_email_rejected[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordValidation::test_email_input_type[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP07: BUG - Email input type is &amp;#x27;text&amp;#x27; instead of &amp;#x27;email&amp;#x27;.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordValidation::test_email_input_type[chromium]&#34;, &#34;duration&#34;: &#34;877 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP07: BUG - Email input type is &#39;text&#39; instead of &#39;email&#39;.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordValidation::test_email_input_type[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;877 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Forgot password email type is &amp;#x27;text&amp;#x27;, should be &amp;#x27;email&amp;#x27;\n    assert &amp;#x27;text&amp;#x27; == &amp;#x27;email&amp;#x27;\n      \n      - email\n      + text\n&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordSecurityQuestions::test_security_question_has_correct_options[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP08: Security question dropdown has expected options.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordSecurityQuestions::test_security_question_has_correct_options[chromium]&#34;, &#34;duration&#34;: &#34;982 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP08: Security question dropdown has expected options.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordSecurityQuestions::test_security_question_has_correct_options[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;982 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordSecurityQuestions::test_security_question_is_optional[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP09: Security question is labeled as optional.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordSecurityQuestions::test_security_question_is_optional[chromium]&#34;, &#34;duration&#34;: &#34;888 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP09: Security question is labeled as optional.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordSecurityQuestions::test_security_question_is_optional[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;888 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_back_to_login_link[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP10: &amp;#x27;Back to Login&amp;#x27; link navigates to login page.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_back_to_login_link[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP10: &#39;Back to Login&#39; link navigates to login page.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_back_to_login_link[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_create_account_link[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP11: &amp;#x27;Create New Account&amp;#x27; link navigates to register page.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_create_account_link[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP11: &#39;Create New Account&#39; link navigates to register page.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_create_account_link[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_page_title[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-FP12: Page title should mention Forgot Password.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_page_title[chromium]&#34;, &#34;duration&#34;: &#34;831 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Forgot Password&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-FP12: Page title should mention Forgot Password.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_forgot_password.py::TestForgotPasswordNavigation::test_page_title[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;831 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginPositive::test_successful_login[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L01: Successful login with valid registered credentials.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginPositive::test_successful_login[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L01: Successful login with valid registered credentials.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginPositive::test_successful_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginPositive::test_login_redirects_to_dashboard[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L02: After successful login, user is redirected to dashboard.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginPositive::test_login_redirects_to_dashboard[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L02: After successful login, user is redirected to dashboard.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginPositive::test_login_redirects_to_dashboard[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginPositive::test_login_shows_registered_param[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L03: After registration redirect, login page has registered=true param.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginPositive::test_login_shows_registered_param[chromium]&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L03: After registration redirect, login page has registered=true param.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginPositive::test_login_shows_registered_param[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginNegative::test_login_wrong_password[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L04: Login with wrong password shows error.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginNegative::test_login_wrong_password[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L04: Login with wrong password shows error.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginNegative::test_login_wrong_password[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginNegative::test_login_nonexistent_email[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L05: Login with unregistered email shows error.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginNegative::test_login_nonexistent_email[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L05: Login with unregistered email shows error.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginNegative::test_login_nonexistent_email[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginNegative::test_login_empty_form[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L06: Submitting empty login form should not succeed.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginNegative::test_login_empty_form[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L06: Submitting empty login form should not succeed.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginNegative::test_login_empty_form[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginNegative::test_login_empty_password[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L07: Login with email but no password should fail.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginNegative::test_login_empty_password[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L07: Login with email but no password should fail.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginNegative::test_login_empty_password[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginEmailValidation::test_login_email_input_type[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L08: BUG - Login email input type is &amp;#x27;text&amp;#x27; instead of &amp;#x27;email&amp;#x27;.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginEmailValidation::test_login_email_input_type[chromium]&#34;, &#34;duration&#34;: &#34;898 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L08: BUG - Login email input type is &#39;text&#39; instead of &#39;email&#39;.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginEmailValidation::test_login_email_input_type[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;898 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Login email field type is &amp;#x27;text&amp;#x27;, should be &amp;#x27;email&amp;#x27;\n    assert &amp;#x27;text&amp;#x27; == &amp;#x27;email&amp;#x27;\n      \n      - email\n      + text\n&#34;}], &#34;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-plaintext]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L09: Invalid email formats should show validation error on login.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-plaintext]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L09: Invalid email formats should show validation error on login.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-plaintext]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-user@]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L09: Invalid email formats should show validation error on login.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-user@]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L09: Invalid email formats should show validation error on login.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-user@]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-@test.com]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L09: Invalid email formats should show validation error on login.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-@test.com]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L09: Invalid email formats should show validation error on login.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginEmailValidation::test_login_invalid_email_rejected[chromium-@test.com]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginUIElements::test_page_title[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L10: Login page title should be correct.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginUIElements::test_page_title[chromium]&#34;, &#34;duration&#34;: &#34;784 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L10: Login page title should be correct.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginUIElements::test_page_title[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;784 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginUIElements::test_forgot_password_link[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L11: &amp;#x27;Forgot Password?&amp;#x27; link navigates correctly.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginUIElements::test_forgot_password_link[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L11: &#39;Forgot Password?&#39; link navigates correctly.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginUIElements::test_forgot_password_link[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginUIElements::test_register_link[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L12: &amp;#x27;Create New Account&amp;#x27; link navigates correctly.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginUIElements::test_register_link[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L12: &#39;Create New Account&#39; link navigates correctly.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginUIElements::test_register_link[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_login.py::TestLoginUIElements::test_remember_me_checkbox_present[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-L13: Remember Me checkbox exists on the page.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login.py::TestLoginUIElements::test_remember_me_checkbox_present[chromium]&#34;, &#34;duration&#34;: &#34;844 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Login&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-L13: Remember Me checkbox exists on the page.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login.py::TestLoginUIElements::test_remember_me_checkbox_present[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;844 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestRegistrationPositive::test_successful_registration_all_fields[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-001: Successful registration with all valid fields.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestRegistrationPositive::test_successful_registration_all_fields[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-001: Successful registration with all valid fields.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestRegistrationPositive::test_successful_registration_all_fields[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestRegistrationPositive::test_registration_without_newsletter[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-002: Registration without subscribing to newsletter.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestRegistrationPositive::test_registration_without_newsletter[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-002: Registration without subscribing to newsletter.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestRegistrationPositive::test_registration_without_newsletter[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestRegistrationPositive::test_registration_redirects_to_login[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-003: After successful registration, user is redirected to login.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestRegistrationPositive::test_registration_redirects_to_login[chromium]&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-003: After successful registration, user is redirected to login.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestRegistrationPositive::test_registration_redirects_to_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-004: Invalid email formats should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-004: Invalid email formats should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-plaintext]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-004: Invalid email formats should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-plaintext]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-004: Invalid email formats should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-plaintext]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-@nodomain.com]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-004: Invalid email formats should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-@nodomain.com]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-004: Invalid email formats should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-@nodomain.com]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-004: Invalid email formats should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-004: Invalid email formats should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@.com]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-004: Invalid email formats should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@.com]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-004: Invalid email formats should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@.com]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user space@example.com]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-004: Invalid email formats should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user space@example.com]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-004: Invalid email formats should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user space@example.com]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@@example.com]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-004: Invalid email formats should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@@example.com]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-004: Invalid email formats should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestEmailValidation::test_invalid_email_rejected[chromium-user@@example.com]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestEmailValidation::test_email_input_type_should_be_email[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-005: BUG - Email input type is &amp;#x27;text&amp;#x27; instead of &amp;#x27;email&amp;#x27;.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestEmailValidation::test_email_input_type_should_be_email[chromium]&#34;, &#34;duration&#34;: &#34;805 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-005: BUG - Email input type is &#39;text&#39; instead of &#39;email&#39;.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestEmailValidation::test_email_input_type_should_be_email[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;805 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Email field type is &amp;#x27;text&amp;#x27;, should be &amp;#x27;email&amp;#x27; for built-in browser validation\n    assert &amp;#x27;text&amp;#x27; == &amp;#x27;email&amp;#x27;\n      \n      - email\n      + text\n&#34;}], &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-a]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-a]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-a]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-ab]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-ab]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-ab]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-abc]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-abc]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-abc]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-1234]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-1234]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-006: Weak/short passwords should be rejected (min 8 chars).&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPasswordValidation::test_weak_password_rejected[chromium-1234]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Password &amp;#x27;1234&amp;#x27; (length 4) should be rejected\n    assert (False or False)\n&#34;}], &#34;tests/test_registration.py::TestPasswordValidation::test_password_mismatch_rejected[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-007: BUG - Mismatched passwords should be rejected but aren&amp;#x27;t.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPasswordValidation::test_password_mismatch_rejected[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-007: BUG - Mismatched passwords should be rejected but aren&#39;t.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPasswordValidation::test_password_mismatch_rejected[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Mismatched passwords accepted - validatePasswordMatch always returns true\n    assert (&amp;#x27;&amp;#x27; != &amp;#x27;&amp;#x27; or False)\n&#34;}], &#34;tests/test_registration.py::TestPasswordValidation::test_password_field_is_masked[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-008: Password fields should mask input.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPasswordValidation::test_password_field_is_masked[chromium]&#34;, &#34;duration&#34;: &#34;889 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-008: Password fields should mask input.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPasswordValidation::test_password_field_is_masked[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;889 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-009: BUG - Invalid phone numbers should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-009: BUG - Invalid phone numbers should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-abc]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-009: BUG - Invalid phone numbers should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-abc]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-009: BUG - Invalid phone numbers should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-abc]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Phone &amp;#x27;abc&amp;#x27; should be rejected\n    assert (False or False)\n&#34;}], &#34;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-12-34]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-009: BUG - Invalid phone numbers should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-12-34]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-009: BUG - Invalid phone numbers should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-12-34]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Phone &amp;#x27;12-34&amp;#x27; should be rejected\n    assert (False or False)\n&#34;}], &#34;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-phone number]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-009: BUG - Invalid phone numbers should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-phone number]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-009: BUG - Invalid phone numbers should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestPhoneValidation::test_invalid_phone_rejected[chromium-phone number]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Phone &amp;#x27;phone number&amp;#x27; should be rejected\n    assert (False or False)\n&#34;}], &#34;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-010: BUG - Invalid ZIP codes should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-010: BUG - Invalid ZIP codes should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-ab]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-010: BUG - Invalid ZIP codes should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-ab]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-010: BUG - Invalid ZIP codes should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-ab]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-abc]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-010: BUG - Invalid ZIP codes should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-abc]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-010: BUG - Invalid ZIP codes should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-abc]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: ZIP &amp;#x27;abc&amp;#x27; should be rejected\n    assert (False or False)\n&#34;}], &#34;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-!!]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-010: BUG - Invalid ZIP codes should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-!!]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-010: BUG - Invalid ZIP codes should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestZipCodeValidation::test_invalid_zip_rejected[chromium-!!]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestZipCodeValidation::test_zip_with_letters_rejected[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-011: BUG - ZIP code with letters should be rejected.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestZipCodeValidation::test_zip_with_letters_rejected[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-011: BUG - ZIP code with letters should be rejected.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestZipCodeValidation::test_zip_with_letters_rejected[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: ZIP code with letters accepted - should only accept numbers\n    assert (False or False)\n&#34;}], &#34;tests/test_registration.py::TestRequiredFields::test_empty_form_submission[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-012: Submitting empty form should not succeed.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestRequiredFields::test_empty_form_submission[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-012: Submitting empty form should not succeed.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestRequiredFields::test_empty_form_submission[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestRequiredFields::test_missing_first_name[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-013: Registration without first name should fail.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestRequiredFields::test_missing_first_name[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-013: Registration without first name should fail.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestRequiredFields::test_missing_first_name[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestRequiredFields::test_missing_last_name[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-014: Registration without last name should fail.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestRequiredFields::test_missing_last_name[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-014: Registration without last name should fail.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestRequiredFields::test_missing_last_name[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestRequiredFields::test_missing_email[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-015: Registration without email should fail.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestRequiredFields::test_missing_email[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-015: Registration without email should fail.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestRequiredFields::test_missing_email[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestRequiredFields::test_terms_checkbox_required[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-016: BUG - T&amp;amp;C checkbox should be required but isn&amp;#x27;t enforced.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestRequiredFields::test_terms_checkbox_required[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-016: BUG - T&amp;C checkbox should be required but isn&#39;t enforced.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestRequiredFields::test_terms_checkbox_required[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Registration succeeds without accepting Terms &amp;amp; Conditions\n    assert not True\n     +  where True = has_success_message()\n     +    where has_success_message = &amp;lt;pages.register_page.RegisterPage object at 0x000001A895C3C6E0&amp;gt;.has_success_message\n&#34;}], &#34;tests/test_registration.py::TestSecurityValidation::test_sql_injection_in_fields[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-017: SQL injection payloads should not cause errors.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestSecurityValidation::test_sql_injection_in_fields[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-017: SQL injection payloads should not cause errors.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestSecurityValidation::test_sql_injection_in_fields[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestSecurityValidation::test_xss_in_fields[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-018: XSS payloads should be sanitized.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestSecurityValidation::test_xss_in_fields[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-018: XSS payloads should be sanitized.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestSecurityValidation::test_xss_in_fields[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestSecurityValidation::test_long_input_boundary[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-019: Very long inputs should be handled gracefully.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestSecurityValidation::test_long_input_boundary[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-019: Very long inputs should be handled gracefully.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestSecurityValidation::test_long_input_boundary[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestUIElements::test_page_title[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-020: Page title should be correct.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestUIElements::test_page_title[chromium]&#34;, &#34;duration&#34;: &#34;838 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-020: Page title should be correct.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestUIElements::test_page_title[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;838 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestUIElements::test_all_form_labels_present[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-021: All form field labels should be visible.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestUIElements::test_all_form_labels_present[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-021: All form field labels should be visible.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestUIElements::test_all_form_labels_present[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestUIElements::test_login_link_navigates_correctly[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-022: &amp;#x27;Already have an account? Login&amp;#x27; link works.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestUIElements::test_login_link_navigates_correctly[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-022: &#39;Already have an account? Login&#39; link works.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestUIElements::test_login_link_navigates_correctly[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestUIElements::test_all_required_fields_have_required_attribute[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-023: Required fields should have HTML required attribute.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestUIElements::test_all_required_fields_have_required_attribute[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-023: Required fields should have HTML required attribute.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestUIElements::test_all_required_fields_have_required_attribute[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestUIElements::test_submit_button_visible[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-024: Submit button should be visible and enabled.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestUIElements::test_submit_button_visible[chromium]&#34;, &#34;duration&#34;: &#34;857 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-024: Submit button should be visible and enabled.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestUIElements::test_submit_button_visible[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;857 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_registration.py::TestDuplicateRegistration::test_duplicate_email_rejected[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-025: Registering with already used email should fail.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_registration.py::TestDuplicateRegistration::test_duplicate_email_rejected[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Registration&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-025: Registering with already used email should fail.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_registration.py::TestDuplicateRegistration::test_duplicate_email_rejected[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_responsive.py::TestMobileRegistration::test_error_messages_visible_on_mobile[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R01: BUG - Error messages hidden on mobile via CSS.\n\nCSS rule: @media (max-width: 767px) { .error-message { display: none !important; } }\nUsers on mobile cannot see validation errors.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestMobileRegistration::test_error_messages_visible_on_mobile[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R01: BUG - Error messages hidden on mobile via CSS.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestMobileRegistration::test_error_messages_visible_on_mobile[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Error messages are hidden on mobile! CSS sets .error-message { display: none !important; } at max-width: 767px\n    assert False\n&#34;}], &#34;tests/test_responsive.py::TestMobileRegistration::test_submit_button_fully_visible_on_mobile[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R02: BUG - Submit button has reduced height on mobile.\n\nCSS rule: @media (max-width: 767px) { .btn-primary { max-height: 35px; margin-bottom: -25px; } }\nThe button is still visible and functional, but its height is reduced compared to desktop.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestMobileRegistration::test_submit_button_fully_visible_on_mobile[chromium]&#34;, &#34;duration&#34;: &#34;884 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R02: BUG - Submit button has reduced height on mobile.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestMobileRegistration::test_submit_button_fully_visible_on_mobile[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;884 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Submit button height is 35px on mobile (expected &amp;gt;= 40px). CSS max-height: 35px reduces it below desktop size.\n    assert 35 &amp;gt;= 40\n&#34;}], &#34;tests/test_responsive.py::TestMobileRegistration::test_newsletter_checkbox_not_overlaid_on_mobile[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R03: BUG - Newsletter checkbox has overlay on mobile.\n\nThe .mobile-hidden-checkbox class shows an overlay-image-small on mobile.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestMobileRegistration::test_newsletter_checkbox_not_overlaid_on_mobile[chromium]&#34;, &#34;duration&#34;: &#34;905 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R03: BUG - Newsletter checkbox has overlay on mobile.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestMobileRegistration::test_newsletter_checkbox_not_overlaid_on_mobile[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;905 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Newsletter checkbox has an overlay covering it on mobile\n    assert not True\n&#34;}], &#34;tests/test_responsive.py::TestTabletRegistration::test_address_field_not_overlaid_on_tablet[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R04: BUG - Street address field has overlay on tablet.\n\nThe .tablet-hidden class shows an overlay-image-tablet on tablet viewports.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestTabletRegistration::test_address_field_not_overlaid_on_tablet[chromium]&#34;, &#34;duration&#34;: &#34;854 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R04: BUG - Street address field has overlay on tablet.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestTabletRegistration::test_address_field_not_overlaid_on_tablet[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;854 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Street address field has an advertisement overlay on tablet viewport\n    assert not True\n&#34;}], &#34;tests/test_responsive.py::TestMobileForgotPassword::test_security_section_not_overlaid_on_mobile[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R05: BUG - Security question section has overlay on mobile.\n\nThe .mobile-hidden-section class shows overlay-image-security on mobile.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestMobileForgotPassword::test_security_section_not_overlaid_on_mobile[chromium]&#34;, &#34;duration&#34;: &#34;825 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R05: BUG - Security question section has overlay on mobile.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestMobileForgotPassword::test_security_section_not_overlaid_on_mobile[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;825 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Security question section has overlay on mobile viewport\n    assert not True\n&#34;}], &#34;tests/test_responsive.py::TestMobileLogin::test_remember_me_not_overlaid_on_mobile[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R06: BUG - Remember Me checkbox has overlay on mobile.\n\nThe .mobile-hidden class shows an overlay-image on mobile.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestMobileLogin::test_remember_me_not_overlaid_on_mobile[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R06: BUG - Remember Me checkbox has overlay on mobile.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestMobileLogin::test_remember_me_not_overlaid_on_mobile[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Remember Me checkbox has overlay covering it on mobile\n    assert not True\n&#34;}], &#34;tests/test_responsive.py::TestTabletDashboard::test_rewards_card_not_overlaid_on_tablet[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R07: BUG - Rewards card has overlay on tablet.\n\nThe .mobile-hidden-card class shows overlay-image-rewards on tablet viewports.\nRequires authenticated access to dashboard.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestTabletDashboard::test_rewards_card_not_overlaid_on_tablet[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R07: BUG - Rewards card has overlay on tablet.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestTabletDashboard::test_rewards_card_not_overlaid_on_tablet[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_responsive.py::TestTabletDashboard::test_activity_item_not_overlaid_on_tablet[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R08: BUG - Activity list item has overlay on tablet.\n\nThe .tablet-hidden-activity class shows overlay-image-activity on tablet viewports.\nRequires authenticated access to dashboard.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestTabletDashboard::test_activity_item_not_overlaid_on_tablet[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R08: BUG - Activity list item has overlay on tablet.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestTabletDashboard::test_activity_item_not_overlaid_on_tablet[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Activity list item has an overlay covering it on tablet viewport\n    assert not True\n&#34;}], &#34;tests/test_responsive.py::TestTabletDashboard::test_dashboard_card_not_overlaid_on_tablet[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R09: BUG - Dashboard stat card has overlay on tablet.\n\nThe .tablet-hidden-card class shows overlay-image-dashboard on tablet viewports.\nRequires authenticated access to dashboard.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestTabletDashboard::test_dashboard_card_not_overlaid_on_tablet[chromium]&#34;, &#34;duration&#34;: &#34;00:00:05&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R09: BUG - Dashboard stat card has overlay on tablet.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestTabletDashboard::test_dashboard_card_not_overlaid_on_tablet[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:05&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Dashboard stat card has an overlay covering it on tablet viewport\n    assert not True\n&#34;}], &#34;tests/test_responsive.py::TestMobileDashboard::test_download_report_button_not_overlaid_on_mobile[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-R10: BUG - Download Report button has overlay on mobile.\n\nThe .mobile-hidden-action class shows a button-overlay on mobile viewports.\nRequires authenticated access to dashboard.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_responsive.py::TestMobileDashboard::test_download_report_button_not_overlaid_on_mobile[chromium]&#34;, &#34;duration&#34;: &#34;00:00:06&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Responsive Design&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-R10: BUG - Download Report button has overlay on mobile.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_responsive.py::TestMobileDashboard::test_download_report_button_not_overlaid_on_mobile[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:06&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Download Report button has an overlay covering it on mobile viewport\n    assert not True\n&#34;}], &#34;tests/test_security.py::TestConsoleSensitiveData::test_login_logs_email_to_console[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-S01: BUG - Login process logs email to console.\n\napp.js contains: console.log(&amp;#x27;Attempting login for:&amp;#x27;, email)\nand console.log(&amp;#x27;User stored in sessionStorage:&amp;#x27;, data.user.email)\nSensitive data should never be logged to console.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::TestConsoleSensitiveData::test_login_logs_email_to_console[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Security&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-S01: BUG - Login process logs email to console.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::TestConsoleSensitiveData::test_login_logs_email_to_console[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: User email &amp;#x27;testuser_3usyfhty@example.com&amp;#x27; was logged to browser console. Console messages containing email: [&amp;#x27;Attempting to register user: testuser_3usyfhty@example.com&amp;#x27;, &amp;#x27;Registration successful: testuser_3usyfhty@example.com&amp;#x27;, &amp;#x27;Attempting login for: testuser_3usyfhty@example.com&amp;#x27;, &amp;#x27;Login successful for user: testuser_3usyfhty@example.com&amp;#x27;, &amp;#x27;User stored in sessionStorage: testuser_3usyfhty@example.com&amp;#x27;, &amp;#x27;Parsed user data: {firstName: Console, lastName: Test, email: testuser_3usyfhty@example.com, phone: 0911234567, address: 123 St}&amp;#x27;, &amp;#x27;SUCCESS: User authenticated: testuser_3usyfhty@example.com&amp;#x27;]\n    assert not True\n&#34;}], &#34;tests/test_security.py::TestConsoleSensitiveData::test_registration_logs_email_to_console[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-S02: BUG - Registration logs email to console.\n\napp.js contains: console.log(&amp;#x27;Attempting to register user:&amp;#x27;, email)&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::TestConsoleSensitiveData::test_registration_logs_email_to_console[chromium]&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Security&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-S02: BUG - Registration logs email to console.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::TestConsoleSensitiveData::test_registration_logs_email_to_console[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: Registration logs email &amp;#x27;testuser_o4s52mtr@example.com&amp;#x27; to console\n    assert not True\n&#34;}], &#34;tests/test_security.py::TestSessionSecurity::test_session_uses_httponly_cookies[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-S03: BUG - Session data stored in sessionStorage instead of httpOnly cookies.\n\nThe app stores user data in sessionStorage which is accessible via JavaScript,\nmaking it vulnerable to XSS-based session theft.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::TestSessionSecurity::test_session_uses_httponly_cookies[chromium]&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Security&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-S03: BUG - Session data stored in sessionStorage instead of httpOnly cookies.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::TestSessionSecurity::test_session_uses_httponly_cookies[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: BUG: User session data stored in sessionStorage (accessible via JS). Should use httpOnly cookies for security. Stored data: {&amp;quot;firstName&amp;quot;:&amp;quot;Session&amp;quot;,&amp;quot;lastName&amp;quot;:&amp;quot;Test&amp;quot;,&amp;quot;email&amp;quot;:&amp;quot;testuser_o0btzsu3@example.com&amp;quot;,&amp;quot;phone&amp;quot;:&amp;quot;0911234567...\n    assert &amp;#x27;{&amp;quot;firstName&amp;quot;:&amp;quot;Session&amp;quot;,&amp;quot;lastName&amp;quot;:&amp;quot;Test&amp;quot;,&amp;quot;email&amp;quot;:&amp;quot;testuser_o0btzsu3@example.com&amp;quot;,&amp;quot;phone&amp;quot;:&amp;quot;0911234567&amp;quot;,&amp;quot;address&amp;quot;:&amp;quot;123 St&amp;quot;,&amp;quot;city&amp;quot;:&amp;quot;Split&amp;quot;,&amp;quot;zipCode&amp;quot;:&amp;quot;21000&amp;quot;,&amp;quot;createdAt&amp;quot;:&amp;quot;2026-02-09T13:05:27.778Z&amp;quot;,&amp;quot;lastLogin&amp;quot;:&amp;quot;2026-02-09T13:05:30.201Z&amp;quot;}&amp;#x27; is None\n&#34;}], &#34;tests/test_security.py::TestLoginSecurityInjection::test_sql_injection_login[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-S04: SQL injection on login form should be handled gracefully.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::TestLoginSecurityInjection::test_sql_injection_login[chromium]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Security&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-S04: SQL injection on login form should be handled gracefully.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::TestLoginSecurityInjection::test_sql_injection_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_security.py::TestLoginSecurityInjection::test_xss_login[chromium]&#34;: [{&#34;extras&#34;: [{&#34;name&#34;: null, &#34;format_type&#34;: &#34;html&#34;, &#34;content&#34;: &#34;&lt;div class=\&#34;test-doc\&#34;&gt;&lt;strong&gt;Test Details:&lt;/strong&gt;&lt;br&gt;&lt;pre&gt;TC-S05: XSS payload in login should not execute.&lt;/pre&gt;&lt;/div&gt;&#34;, &#34;mime_type&#34;: null, &#34;extension&#34;: null}], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_security.py::TestLoginSecurityInjection::test_xss_login[chromium]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td&gt;Security&lt;/td&gt;&#34;, &#34;&lt;td&gt;TC-S05: XSS payload in login should not execute.&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_security.py::TestLoginSecurityInjection::test_xss_login[chromium]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}]}, &#34;renderCollapsed&#34;: [&#34;all&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;QA Test Application - Test Report&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > td')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > td')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+</html>
